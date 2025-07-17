@@ -2,7 +2,7 @@
   "name": "stacgatelms/stacgatelms",
   "description": "Plate-forme LMS légère en PHP natif",
   "type": "project",
-  "license": "MIT",
+  "license": "Amine AMICHI",
   "require": {
     "php": "^8.2"
   },

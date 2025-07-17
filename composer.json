@@ -1,0 +1,22 @@
+{
+  "name": "stacgatelms/stacgatelms",
+  "description": "Plate-forme LMS légère en PHP natif",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "composer dump-autoload --optimize"
+    ],
+    "post-update-cmd": [
+      "composer dump-autoload --optimize"
+    ]
+  }
+}

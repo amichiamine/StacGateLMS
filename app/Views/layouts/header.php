@@ -6,13 +6,12 @@
 
         </div>
         <div class="site-info">
-    <?php
-    echo htmlspecialchars_decode(\App\Helpers\Setting::get(
-        'homepage_site_info',
-        '<h1>StacGate LMS</h1><p>Par MagSteam E-Learning Platform</p>'
-    ));
-    ?>
-</div>
+            <?= \App\Helpers\Setting::get(
+            'homepage_site_info',
+            '<h1>StacGateLMS</h1><p>Votre plateforme d’apprentissage</p>'
+            ) ?>
+        </div>
+
 
     </div>
     <button class="hamburger" aria-label="Menu" aria-expanded="false">
@@ -21,8 +20,15 @@
         <span></span>
     </button>
     <nav class="main-nav">
-        <a href="/" class="nav-link">Accueil</a>
-        <a href="/about" class="nav-link">À propos</a>
-        <a href="/contact" class="nav-link">Contact</a>
-    </nav>
+    <?php
+    $menu = json_decode(\App\Helpers\Setting::get('main_menu_json', '[]'), true);
+    if (!empty($menu)) {
+        foreach ($menu as $item) {
+            echo '<a href="' . htmlspecialchars($item['url']) . '" class="nav-link">' . 
+                  htmlspecialchars($item['label']) . '</a>';
+        }
+    }
+    ?>
+</nav>
+
 </header>

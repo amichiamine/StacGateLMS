@@ -10,9 +10,12 @@ html, body {
 }
 
 /* ========== HEADER NAVIGATION ========== */
-.main-header {
+.main-header, header {
     width: 100%;
     background: var(--header-bg);
+    color: var(--header-font-color);
+    font-size: var(--header-font-size);
+    font-family: var(--header-font-family);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -81,9 +84,11 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0; /* ← zéro padding pour ne rien contraindre */
-    background: var(--color-bg-gradient);
-    color: var(--color-content-light);
+    padding: 0;
+    background: var(--body-bg);
+    color: var(--body-font-color);
+    font-size: var(--body-font-size);
+    font-family: var(--body-font-family);
     min-height: 100vh;
     box-sizing: border-box;
 }
@@ -200,8 +205,6 @@ main {
     transition: background 0.3s; cursor: pointer;
 }
 .carousel-dots .active { background: var(--color-accent); }
-
-/* Responsive mobile */
 @media (max-width: 700px) {
     .carousel, .slide {
         height: 180px !important;
@@ -217,7 +220,6 @@ main {
         margin: 0;
     }
 }
-
 
 /* ========== WELCOME BLOCK ========= */
 section#welcome {
@@ -279,6 +281,8 @@ footer {
     text-align: center;
     padding: 2rem 0;
     background: var(--footer-bg);
-    color: var(--color-content-light);
-    font-size: 0.9rem;
+    color: var(--footer-font-color);
+    font-size: var(--footer-font-size);
+    font-family: var(--footer-font-family);
+  
 }

@@ -1,0 +1,694 @@
+- StacGateLMS\
+  - composer.json **"Systeme"**
+  - composer.lock  "Systeme a ne pas toucher"
+  - .vscode\
+    - extensions.json "Systeme a ne pas toucher"
+  - app\
+    - Core\
+      - Router.php
+    - Helpers\
+      - Setting.php
+    - Views\
+      - components\
+        - carousel.php
+      - home\
+        - welcome.php
+      - layouts\
+        - footer.php
+        - head.php
+        - header.php
+  - config\
+    - config.php
+  - public\
+    - .htaccess
+    - index.php
+    - assets\
+      - css\
+        - main.css
+        - theme.css
+      - images\
+        - fond.png
+        - logo.png
+        - logo2.png
+        - carousel\
+          - slide1.jpg
+          - slide2.jpg
+      - js\
+        - carousel.js
+        - main.js
+        - slider.js
+  - vendor\ "Généré Automatiquement Systeme a ne pas toucher"
+---------------------------------------------------------------------
+Fichies avec Codes:
+
+1- Router.php :
+<?php
+namespace App\Core;
+
+class Router {
+    protected array $routes = [];
+
+    public function get(string $uri, $action) {
+        $this->routes['GET'][$uri] = $action;
+    }
+
+    public function dispatch(string $requestUri, string $requestMethod) {
+        $requestUri = strtok($requestUri, '?'); // ignores query params
+
+        $action = $this->routes[$requestMethod][$requestUri] ?? null;
+        if ($action) {
+            if (is_callable($action)) {
+                return $action();
+            }
+            // Format: [ControllerClass, method]
+            if (is_array($action) && class_exists($action[0])) {
+                $controller = new $action[0]();
+                return call_user_func([$controller, $action[1]]);
+            }
+        }
+        // 404 custom
+        http_response_code(404);
+        echo "<h1>404 Not Found</h1>";
+        exit;
+    }
+}
+
+
+2- Setting.php : 
+<?php
+namespace App\Helpers;
+
+class Setting {
+    private static $db;
+
+    public static function init(\PDO $db) {
+        self::$db = $db;
+    }
+
+    public static function get(string $key, string $default = 'StacGate LMS par MagSteam E-Learning Platform') {
+    if (!isset(self::$db)) {
+        return $default;
+    }
+    $stmt = self::$db->prepare('SELECT setting_value FROM app_settings WHERE setting_key = ?');
+    $stmt->execute([$key]);
+    $result = $stmt->fetchColumn();
+
+    // ===> CORRECTION ICI :
+    // Si $result vaut NULL, false ou '', on retourne la valeur par défaut
+    if ($result === false || trim((string)$result) === '') {
+        return $default;
+    }
+    return $result;
+}
+
+}
+
+3- carousel.php:
+<?php
+$carousel_enabled = \App\Helpers\Setting::get('carousel_enabled', '1');
+if ($carousel_enabled === '1') :
+    $carousel_height = \App\Helpers\Setting::get('carousel_height', '280px');
+    $carousel_width  = \App\Helpers\Setting::get('carousel_width', '95vw');
+    $slides = json_decode(\App\Helpers\Setting::get('carousel_slides_json', '[]'), true);
+    if (!is_array($slides) || count($slides) === 0) return;
+?>
+<div class="carousel-container"
+     style="--carousel-height:<?= htmlspecialchars(trim($carousel_height, '\'" ')) ?>; --carousel-width:<?= htmlspecialchars(trim($carousel_width, '\'" ')) ?>;">
+
+    <div class="carousel">
+    <?php foreach ($slides as $idx => $slide): ?>
+        <div class="slide<?= $idx === 0 ? ' active' : '' ?>">
+            <img src="<?= htmlspecialchars($slide['img']) ?>" alt="<?= htmlspecialchars($slide['title'] ?? '') ?>">
+            <div class="slide-text">
+                <?php if (!empty($slide['title'])) { ?><h3><?= htmlspecialchars($slide['title']) ?></h3><?php } ?>
+                <?php if (!empty($slide['desc'])) { ?><p><?= htmlspecialchars($slide['desc']) ?></p><?php } ?>
+                <?php if (!empty($slide['btn'])) { ?>
+                    <a href="<?= htmlspecialchars($slide['link'] ?? '#') ?>" class="btn-primary"><?= htmlspecialchars($slide['btn']) ?></a>
+                <?php } ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    <button class="carousel-arrow left">&#8249;</button>
+    <button class="carousel-arrow right">&#8250;</button>
+    <div class="carousel-dots"></div>
+    </div>
+</div>
+<?php endif; ?>
+
+
+
+4- welcome.php:
+<?php require __DIR__ . '/../components/carousel.php'; ?>
+<div class="hero-row">
+    
+
+   <section id="welcome">
+    <?= \App\Helpers\Setting::get(
+        'homepage_welcome_html',
+        '<h2>Bienvenue sur StacGateLMS</h2><p>Plateforme d’apprentissage virtuelle, flexible et évolutive.</p><p>Vous retrouverez bientôt vos formations, suivis et outils pédagogiques.</p><a href="/StacGateLMS/public/salut">Accéder à la zone de test</a>'
+    ) ?>
+    </section>
+
+</div>
+
+
+
+5- footer.php:
+    </main>
+    <footer>
+        <p>&copy; <?= date('Y') ?> StacGateLMS — Tous droits réservés.</p>
+    </footer>
+<script src="/StacGateLMS/public/assets/js/main.js" defer></script>
+<script src="/StacGateLMS/public/assets/js/carousel.js" defer></script>
+
+</body>
+</html>
+
+6- head.php:
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>StacGateLMS</title>
+    <link rel="stylesheet" href="/StacGateLMS/public/assets/css/theme.css">
+    <link rel="stylesheet" href="/StacGateLMS/public/assets/css/main.css">
+</head>
+<body>
+    <div class="menu-backdrop"></div>
+    <?php require __DIR__ . '/header.php'; ?>
+    <main>
+</body>
+</html>
+
+7- header.php:
+<header class="main-header">
+    <div class="logo-and-info">
+        <div class="logo">
+            <img src="<?= \App\Helpers\Setting::get('homepage_logo_url',
+            '/StacGateLMS/public/assets/images/logo.png') ?>" alt="Logo" style="height:60px;">
+
+        </div>
+        <div class="site-info">
+            <?= \App\Helpers\Setting::get(
+            'homepage_site_info',
+            '<h1>StacGateLMS</h1><p>Votre plateforme d’apprentissage</p>'
+            ) ?>
+        </div>
+
+
+    </div>
+    <button class="hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <nav class="main-nav">
+    <?php
+    $menu = json_decode(\App\Helpers\Setting::get('main_menu_json', '[]'), true);
+    if (!empty($menu)) {
+        foreach ($menu as $item) {
+            echo '<a href="' . htmlspecialchars($item['url']) . '" class="nav-link">' . 
+                  htmlspecialchars($item['label']) . '</a>';
+        }
+    }
+    ?>
+</nav>
+
+</header>
+
+
+8- config.php:
+<?php
+return [
+    'db' => [
+        'host'     => 'localhost',
+        'name'     => 'stacgatelms_dev',   // nom de ta base MySQL
+        'user'     => 'root',
+        'password' => '',
+        'charset'  => 'utf8mb4',
+    ],
+    'app' => [
+        'url'   => 'https://localhost/StacGateLMS/public',
+        'debug' => true,
+        'env'   => 'development'
+    ],
+];
+
+
+9- .htaccess : RewriteEngine On
+
+# If the requested file is not a real file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect all requests to index.php
+RewriteRule ^ index.php [L]
+
+
+10- index.php:
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Connexion PDO à ta base fraichement créée
+$db = new \PDO(
+    'mysql:host=localhost;dbname=stacgatelms_dev;charset=utf8mb4',
+    'root',
+    ''
+);
+// Initialise la classe Setting
+\App\Helpers\Setting::init($db);
+
+use App\Core\Router;
+$router = new Router();
+
+$router->get('/', function () {
+    require __DIR__ . '/../app/Views/layouts/head.php';
+    require __DIR__ . '/../app/Views/home/welcome.php';
+    require __DIR__ . '/../app/Views/layouts/footer.php';
+});
+
+$router->get('/salut', function () {
+    echo '<h1>Cette route est un point de test !</h1>';
+    echo '<a href="/StacGateLMS/public/">Retour à l’accueil</a>';
+});
+
+$basePath = '/StacGateLMS/public';
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+if (strpos($requestUri, $basePath) === 0) {
+    $requestUri = substr($requestUri, strlen($basePath)) ?: '/';
+}
+
+$router->dispatch($requestUri, $_SERVER['REQUEST_METHOD']);
+
+
+11- main.css:
+/* ========== RESET ========== */
+html, body {
+    width: 100vw;
+    min-width: 100vw;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* ========== HEADER NAVIGATION ========== */
+.main-header {
+    width: 100%;
+    background: var(--header-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3vw;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    border-radius: 0 0 1rem 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+.main-header .logo img { height: 60px; display: block; }
+.main-header nav {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+.main-header nav a {
+    padding: 0.35rem 0.98rem;
+    font-size: 1rem;
+    min-width: 85px;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+.main-header nav a:hover { background: var(--menu-button-bg-hover); color: #fff; }
+@media (max-width: 700px) {
+    .main-header { flex-direction: column; align-items: stretch; padding: 0.8rem 2vw; }
+    .main-header nav { width: 100%; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+    .main-header { flex-direction: column; align-items: stretch; padding: 0.6rem 1vw; }
+    .main-header nav a { font-size: 1rem; padding: 0.4rem 0.8rem; margin-bottom: 0.15rem; }
+}
+
+/* ----------- BURGER MENU --------- */
+@media (max-width: 1024px) {
+    .main-header nav.active {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0; right: 0;
+        height: 100vh; width: 82vw; max-width: 340px;
+        background: rgba(24, 42, 80, 0.83);
+        box-shadow: -2px 0 32px #0006;
+        padding: 2.1rem 1.5rem 1.9rem 1.5rem;
+        border-radius: 1.2rem 0 0 1.2rem;
+        z-index: 2000; gap: 1rem;
+        opacity: 0;
+        animation: fadeInBlur 0.25s ease forwards;
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+}
+@keyframes fadeInBlur { from { opacity: 0; transform: translateX(40px) scale(.97);} to{ opacity: 1; transform: translateX(0) scale(1);} }
+@media (max-width: 700px) {
+    .main-header nav.active { left: 0; right: 0; top: 60px; min-width: unset; width: 92vw; margin: 0 auto; padding: 2.2rem 2vw; border-radius: 1.5rem; }
+}
+
+/* ========== MAIN & HERO ROW ========== */
+main {
+    width: 100vw;
+    max-width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0; /* ← zéro padding pour ne rien contraindre */
+    background: var(--color-bg-gradient);
+    color: var(--color-content-light);
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* HERO ROW (grille principale) */
+.hero-row {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto 2rem auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3vw;
+    justify-content: center;
+    align-items: stretch;
+    box-sizing: border-box;
+}
+.hero-row #welcome {
+    flex: 1 1 420px;
+    min-width: 320px;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+@media (max-width: 1000px) {
+    .hero-row { flex-direction: column; gap: 1.5rem; align-items: center; }
+    .hero-row #welcome { width: 99%; max-width: 100vw; margin: 0 auto; order: 2; }
+}
+
+/* ========== CAROUSEL (hors grille, bannière pleine largeur) ========== */
+.carousel-container {
+    width: var(--carousel-width, 95vw);
+    max-width: 100vw;
+    min-width: 0;
+    margin: 1rem auto 3rem auto;
+    left: unset;
+    transform: unset;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.carousel {
+    width: 100%;
+    height: var(--carousel-height, 280px);
+    min-height: var(--carousel-height, 280px);
+    aspect-ratio: 16/9;
+    border-radius: var(--color-border-radius);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    overflow: hidden;
+    background: #000;
+    position: relative;
+}
+
+.slide {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    justify-content: center; align-items: center; z-index: 0;
+}
+.slide.active { display: flex; position: relative; z-index: 1; animation: fadeIn 0.5s; }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+.carousel img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.62); }
+.slide-text {
+    position: absolute; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; inset: 0; color: #fff; z-index: 2;
+    text-align: center; text-shadow: 0 2px 8px #0008; pointer-events: none; padding: 1.5rem;
+}
+.slide-text h3 { font-size: 1.7rem; margin-bottom: 0.5rem; font-weight: bold; pointer-events: auto;}
+.slide-text p { font-size: 1.02rem; margin-bottom: 1.3rem; pointer-events: auto; max-width: 95%; }
+.slide-text .btn-primary {
+    background: var(--color-primary);
+    color: #fff;
+    padding: 0.6rem 1.5rem;
+    border-radius: var(--color-border-radius);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.08rem;
+    transition: background 0.3s;
+    pointer-events: auto;
+    display: inline-block;
+}
+.slide-text .btn-primary:hover { background: var(--color-accent); }
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    background: rgba(255,255,255,0.88);
+    border: none;
+    font-size: 1.5rem;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    transform: translateY(-50%);
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    color: #333;
+}
+.carousel-arrow.left { left: 16px; }
+.carousel-arrow.right { right: 16px; }
+.carousel-arrow:hover { background: var(--color-accent); color: #fff; }
+.carousel-dots {
+    position: absolute;
+    bottom: 18px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 8px; z-index: 10;
+}
+.carousel-dots span {
+    display: inline-block;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: rgba(255,255,255,0.55);
+    transition: background 0.3s; cursor: pointer;
+}
+.carousel-dots .active { background: var(--color-accent); }
+
+/* Responsive mobile */
+@media (max-width: 700px) {
+    .carousel, .slide {
+        height: 180px !important;
+        min-height: 180px !important;
+        aspect-ratio: unset !important;
+    }
+    .carousel-container {
+        width: 98vw !important;
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        left: 0;
+        transform: none;
+        margin: 0;
+    }
+}
+
+
+/* ========== WELCOME BLOCK ========= */
+section#welcome {
+    background: var(--welcome-bg);
+    padding: 2.5rem;
+    border-radius: var(--color-border-radius);
+    box-shadow: var(--welcome-box-shadow);
+    max-width: 600px;
+    margin: auto;
+}
+section#welcome h2 { color: var(--color-content-light); margin-bottom: 1.5rem; font-size: 2rem; }
+section#welcome p  { color: var(--color-content-light); margin-bottom: 1.25rem; font-size: 1.1rem; }
+section#welcome a  {
+    display: inline-block; margin-top: 1.5rem; background: var(--welcome-button-bg); color: #fff; font-weight: bold;
+    padding: 0.75rem 1.5rem; border-radius: var(--welcome-button-radius); text-decoration: none; transition: background-color 0.3s; font-size: 1.1rem;
+}
+section#welcome a:hover { background: var(--welcome-button-bg-hover); }
+
+/* ========== LOGO & INFOS ========== */
+.logo-and-info {
+    display: flex; align-items: center; gap: 1rem; width: 100%;
+}
+.site-info h1 { margin: 0; font-size: 1.6rem; color: var(--color-content-light); font-weight: 700; }
+.site-info p { margin: 0; font-size: 1rem; color: var(--color-content-light); opacity: 0.8; }
+@media (max-width: 768px) {
+    .logo-and-info { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+    .site-info h1 { font-size: 1.3rem; }
+    .site-info p { font-size: 0.9rem; }
+}
+
+/* ========== BURGER MENU ========== */
+.hamburger {
+    display: none; background: none; border: none; cursor: pointer; padding: 0 10px; z-index: 101;
+    position: relative; width: 40px; height: 30px;
+}
+.hamburger span { display: block; height: 3px; width: 100%; margin: 5px 0; background-color: white; border-radius: 2px; transition: all 0.3s; }
+.main-nav { display: flex; gap: 0.8rem; }
+@media (max-width: 768px) {
+    .main-nav {
+        position: fixed;
+        top: 70px; right: 0; width: 80vw;
+        height: calc(100vh - 70px);
+        background: var(--header-bg);
+        flex-direction: column; align-items: center;
+        justify-content: flex-start;
+        padding: 2rem; gap: 1rem;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+        overflow-y: auto; z-index: 100;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+    .hamburger { display: block; }
+    .main-nav.active { transform: translateX(0); }
+    .main-nav a { width: 100%; text-align: center; }
+}
+
+/* ========== FOOTER ========== */
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    background: var(--footer-bg);
+    color: var(--color-content-light);
+    font-size: 0.9rem;
+}
+
+
+12- theme.css:
+/* Variables de personnalisation (personnalisables dynamiquement) */
+:root {
+    --color-bg-gradient: linear-gradient(90deg, #174b99 0%, #25b461 100%);
+    --color-primary: #2162ff;             /* Boutons, liens, accents */
+    --color-accent: #48ff00;              /* Hover, effets, surlignages */
+    --color-header-bg: rgba(24,42,144,0.92); /* Arrière-plan du header */
+    --color-content-dark: #121820;        /* Texte foncé */
+    --color-content-light: #f5f7fa;       /* Texte clair */
+    --color-border-radius: 1.2rem;        /* Rayon par défaut */
+    --font-base: 'Inter', 'Segoe UI', Arial, sans-serif; /* Police par défaut */
+    --menu-button-bg: rgba(33, 98, 255, 0.75); /* Bleu transparent */
+    --menu-button-bg-hover: #5de4c7;      /* Survol du bouton menu */
+    --welcome-bg: rgba(33, 98, 255, 0.85);/* Fond du bloc de bienvenue */
+    --welcome-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    --welcome-button-bg: var(--color-accent);   /* Bleu vert */
+    --welcome-button-bg-hover: var(--color-primary); /* Bleu royal */
+    --welcome-button-radius: 1.2rem;
+    
+    /* ... autres variables ... */
+    --color-primary-shadow: rgba(33, 98, 255, 0.2);
+    --footer-bg: rgba(20,36,54,0.15);
+    
+}
+
+
+/* Règles élémentaires qui utilisent les variables */
+html, body {
+    height: 100%;
+    background: var(--color-bg-gradient);
+    font-family: var(--font-base);
+    margin: 0;
+    padding: 0;
+    color: var(--color-content-dark);
+}
+a, .btn-primary {
+    color: #fff;
+    background: var(--color-primary);
+    border-radius: var(--color-border-radius);
+    padding: 0.65em 1.5em;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+a:hover, .btn-primary:hover {
+    background: var(--color-accent);
+}
+
+
+13- carousel.js: 
+document.addEventListener('DOMContentLoaded', () => {
+    const carousel = document.querySelector('.carousel');
+    const slides = carousel.querySelectorAll('.slide');
+    const sliderDots = carousel.querySelector('.carousel-dots');
+    const leftArrow = carousel.querySelector('.carousel-arrow.left');
+    const rightArrow = carousel.querySelector('.carousel-arrow.right');
+    let currentSlide = 0;
+
+    // Crée la navigation par points
+    slides.forEach((_, idx) => {
+        const dot = document.createElement('span');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(idx));
+        sliderDots.appendChild(dot);
+    });
+
+    // Démarre le défilement automatique
+    let slideInterval = setInterval(nextSlide, 5000);
+
+    // Fonctions de navigation
+    function nextSlide() {
+        goToSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
+    }
+
+    function goToSlide(idx) {
+        slides[currentSlide].classList.remove('active');
+        slides[idx].classList.add('active');
+        sliderDots.querySelector('.active').classList.remove('active');
+        sliderDots.children[idx].classList.add('active');
+        currentSlide = idx;
+        clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 5000);
+    }
+
+    leftArrow.addEventListener('click', () => goToSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1));
+    rightArrow.addEventListener('click', nextSlide);
+});
+
+14- main.js:
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.querySelector('.hamburger');
+    const nav = document.querySelector('.main-header nav');
+   
+
+    hamburger.addEventListener('click', () => {
+        nav.classList.toggle('active');
+        backdrop.classList.toggle('active');
+    });
+
+    backdrop.addEventListener('click', () => {
+        nav.classList.remove('active');
+        backdrop.classList.remove('active');
+    });
+});
+
+
+15- slider.js:
+
+<div class="carousel">
+  <button class="carousel-arrow left">&#8592;</button>
+  <div class="carousel-slides">
+    <div class="carousel-slide active">
+      <img src="/StacGateLMS/public/assets/images/carousel/demo1.jpg" alt="slide 1">
+      <div class="carousel-caption">
+        <h3>Cours personnalisés</h3>
+        <p>Accédez à des cours validés</p>
+      </div>
+    </div>
+    <!-- Slides suivants à ajouter dynamiquement ou statiquement -->
+  </div>
+  <button class="carousel-arrow right">&#8594;</button>
+</div>

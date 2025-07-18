@@ -19,6 +19,12 @@ $db = new PDO(
     $dbconf['password']
 );
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+//verification role
+//session_start();
+//if (empty($_SESSION['user_id'])) {
+//   header('Location: /StacGateLMS/public/login');
+//    exit;
+//}
 
 // Gestion du formulaire et upload image pour background "image"
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['key'])) {
@@ -187,6 +193,143 @@ require __DIR__ . '/../layouts/head.php';
         <?php endif; ?>
     </td>
     <td style="padding:0.7em 1em; text-align:center;">
+        <?php if ($key === 'homepage_logo_url' && !empty($value)): ?>
+            <img src="<?= htmlspecialchars($value) ?>" alt="Logo" style="max-height:48px; max-width:120px;">
+        <?php endif; ?>
+
+        <?php if ($key === 'main_menu_json' && !empty($value)): ?>
+            <?php
+            $menuPreview = @json_decode($value, true);
+            if (is_array($menuPreview)) {
+                echo '<nav style="margin:6px 0;">';
+                foreach ($menuPreview as $item) {
+                    if (isset($item['label'], $item['url'])) {
+                        echo '<a href="' . htmlspecialchars($item['url']) . '" '
+                        . 'style="display:inline-block; background:#f6f7fa; border:1px solid #e7eaee;'
+                        . 'padding:0.2em 0.8em; margin-right:5px; border-radius:4px; text-decoration:none; color:#2162ff;">'
+                        . htmlspecialchars($item['label']) . '</a>';
+                    }
+                }
+                echo '</nav>';
+            } else {
+                echo '<div style="color:#f33;font-size:0.92em">Format JSON invalide ou vide</div>';
+            }
+            ?>
+        <?php endif; ?>
+
+
+        <?php if ($key === 'carousel_slides_json' && !empty($value)): ?>
+            <?php
+            $slidesPreview = @json_decode($value, true);
+            if (is_array($slidesPreview) && count($slidesPreview) > 0) {
+                echo '<div style="display:flex;gap:6px;overflow-x:auto;max-width:430px;padding:3px 0">';
+                foreach ($slidesPreview as $slide) {
+                    echo '<div style="min-width:110px;max-width:120px;background:#f9fafb;border-radius:6px;border:1px solid #eee;padding:6px;box-shadow:0 1px 6px #0001;text-align:center;">';
+                    if (!empty($slide['img'])) {
+                        echo '<img src="' . htmlspecialchars($slide['img']) . '" alt="Slide" style="width:100%;height:54px;object-fit:cover;border-radius:4px 4px 0 0;margin-bottom:0.3em">';
+                    }
+                    if (!empty($slide['title'])) {
+                        echo '<div style="font-size:0.95em;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' . htmlspecialchars($slide['title']) . '</div>';
+                    }
+                    if (!empty($slide['desc'])) {
+                        echo '<div style="font-size:0.93em; color:#666; margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' . htmlspecialchars($slide['desc']) . '</div>';
+                    }
+                    if (!empty($slide['btn'])) {
+                        echo '<span style="display:inline-block;padding:0.13em 0.7em;font-size:0.92em;background:#2162ff;color:#fff; border-radius:3px;">' . htmlspecialchars($slide['btn']) . '</span>';
+                    }
+                    echo '</div>';
+                }
+                echo '</div>';
+            } else {
+                echo '<div style="color:#f33;font-size:0.92em">Format JSON invalide ou aucune slide</div>';
+            }
+            ?>
+        <?php endif; ?>
+
+
+    <?php if ($key === 'homepage_welcome_html' && !empty($value)): ?>
+        <div style="border:1px dashed #89b6fc;background:#fafbff;margin:6px 0;padding:10px 16px; border-radius:6px;max-width:360px;overflow:auto;">
+            <?= $value ?>
+        </div>
+    <?php endif; ?>
+
+
+        <?php if ($key === 'homepage_welcome_html'): ?>
+    <form method="POST" action="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>" id="form-welcome-html" style="margin:0;">
+        <input type="hidden" name="key" value="<?= htmlspecialchars($key) ?>">
+        <div id="welcome-html-view" style="margin-bottom:6px;">
+            <button type="button" onclick="toggleWelcomeEdit(true)" style="margin-bottom:8px;">
+                Modifier le contenu de bienvenue
+            </button>
+            <div style="border:1px dashed #aad6fa;background:#f4f8fd;padding:12px 16px;border-radius:6px;max-width:390px;overflow:auto;">
+                <?= $value ?>
+            </div>
+        </div>
+        <div id="welcome-html-edit" style="display:none;">
+            <textarea name="value" rows="6" style="width:99%;font-family:monospace;padding:6px;"><?= htmlspecialchars($value) ?></textarea>
+            <div style="margin:10px 0 0;">
+                <button type="submit" style="padding:0.4em 1.2em;">Enregistrer</button>
+                <button type="button" onclick="toggleWelcomeEdit(false)" style="margin-left:10px;">Annuler</button>
+            </div>
+            <div style="margin:6px 0 0 0;font-size:0.95em;color:#666;">
+                <strong>Astuce&nbsp;:</strong> tu peux saisir des balises HTML (<code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;a&gt;</code>, etc.) ou juste du texte simple.
+            </div>
+        </div>
+        <!-- Optionnel : Mode simple de saisie directe sans HTML -->
+         <div id="welcome-html-simple" style="margin-top:5px;display:none;">
+    <input type="text" id="welcome-simple-title" placeholder="Titre (ex : Bienvenue sur StacGateLMS)" style="width:96%;margin-bottom:0.5em;">
+    <textarea id="welcome-simple-desc" rows="3" placeholder="Message d’accueil" style="width:96%;margin-bottom:0.5em;"></textarea>
+    <input type="text" id="welcome-simple-btn-label" placeholder="Texte bouton (ex : Commencer)" style="width:96%;margin-bottom:0.4em;">
+    <input type="text" id="welcome-simple-btn-url" placeholder="Lien du bouton (ex : /inscription)" style="width:96%;margin-bottom:0.7em;">
+    <button type="button" onclick="insertWelcomeSimple()">Insérer dans le HTML</button>
+</div>
+
+    </form>
+    <button type="button" onclick="toggleWelcomeSimple()" style="margin-top:5px;">Saisie facile (formulaire simplifié)</button>
+    <script>
+    function toggleWelcomeEdit(edit) {
+        document.getElementById('welcome-html-view').style.display = edit ? 'none' : '';
+        document.getElementById('welcome-html-edit').style.display = edit ? '' : 'none';
+        document.getElementById('welcome-html-simple').style.display = 'none';
+    }
+    function toggleWelcomeSimple() {
+        // Affiche ou cache le bloc simple et active aussi l'édition du texte HTML
+        var block = document.getElementById('welcome-html-simple');
+        if (block.style.display==='none') {
+            toggleWelcomeEdit(true);
+            block.style.display = '';
+        } else {
+            block.style.display = 'none';
+        }
+    }
+ function insertWelcomeSimple() {
+    toggleWelcomeEdit(true);
+    var titre = document.getElementById('welcome-simple-title').value.trim();
+    var desc = document.getElementById('welcome-simple-desc').value.trim();
+    var btnLabel = document.getElementById('welcome-simple-btn-label').value.trim();
+    var btnUrl = document.getElementById('welcome-simple-btn-url').value.trim();
+
+    var html = "";
+    if (titre) html += "<h2>" + titre + "</h2>\n";
+    if (desc) html += "<p>" + desc + "</p>\n";
+    if (btnLabel && btnUrl) {
+        html += '<a href="' + btnUrl.replace(/"/g, '&quot;') + '" class="btn-primary">' + btnLabel + '</a>';
+    }
+    var textarea = document.querySelector('#welcome-html-edit textarea[name="value"]');
+    if (textarea) {
+        textarea.value = html;
+    }
+}
+
+    </script>
+<?php else: ?>
+    <!-- ancien code pour autres clés -->
+<?php endif; ?>
+
+
+
+
+
         <?php
         if ($isColor) {
             echo '<span style="display:inline-block;width:2.3em;height:2.3em;border-radius:3px;border:1px solid #ddd;background:' . htmlspecialchars($value) . ';"></span>';

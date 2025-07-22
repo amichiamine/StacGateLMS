@@ -17,19 +17,14 @@ class BaseController
      * @param string $view  ex. 'home/index' → templates/home/index.php
      * @param array  $data  variables disponibles dans la vue
      */
-    protected function render(string $view, array $data = []): void
-    {
-        $file = $this->viewsPath .
-                str_replace('/', DIRECTORY_SEPARATOR, $view) .
-                '.php';
+   use StacGate\Core\View;
 
-        if (!file_exists($file)) {
-            throw new \RuntimeException("Vue introuvable : {$file}");
-        }
-
-        extract($data, EXTR_OVERWRITE);
-        require $file;
-    }
+protected function render(string $view, array $data = [], string $layout = 'layouts/main'): void
+{
+    (new View())
+        ->setLayout($layout)
+        ->render($view, $data);
+}
 
     /**
      * Retournera la connexion PDO partagée (étape 2.3).

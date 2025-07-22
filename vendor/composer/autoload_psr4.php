@@ -9,4 +9,6 @@ return array(
     'StacGate\\Tests\\' => array($baseDir . '/Tests'),
     'StacGate\\Core\\' => array($baseDir . '/Core'),
     'StacGate\\' => array($baseDir . '/Src'),
+    'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
+    'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
 );

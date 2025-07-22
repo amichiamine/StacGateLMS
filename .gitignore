@@ -1,0 +1,37 @@
+# === DÉPENDANCES ET VENDOR ===
+/vendor/
+composer.phar
+composer.lock
+
+# === CONFIGURATION SENSIBLE ===
+/config/database.php
+/config/environment.php
+.env
+.env.local
+.env.production
+.env.staging
+
+# === CACHE ET LOGS ===
+/storage/logs/*.log
+/storage/cache/*
+/storage/uploads/*
+!storage/logs/.gitkeep
+!storage/cache/.gitkeep  
+!storage/uploads/.gitkeep
+
+# === ÉDITEURS DE CODE ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === SYSTÈME ===
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# === TESTS ===
+/tests/_output/*
+phpunit.phar
+phpunit.xml

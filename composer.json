@@ -1,0 +1,27 @@
+{
+    "name": "stacgate/stacgatelms",
+    "description": "Plateforme LMS modulaire et personnalisable - StacGateLMS",
+    "type": "project",
+    "license": "Amine AMICHI MagSteam-StacGate",
+    "authors": [
+        {
+            "name": "Amine AMICHI",
+            "email": "amichi.amine@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "StacGate\\Core\\": "core/",
+            "StacGate\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "StacGate\\Tests\\": "tests/"
+        }
+    }
+}

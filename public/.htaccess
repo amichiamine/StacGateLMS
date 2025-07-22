@@ -1,7 +1,52 @@
+# CONFIGURATION APACHE POUR STACGATELMS
+# 
+# Ce fichier configure Apache pour rediriger toutes les requêtes
+# vers index.php (front-controller pattern) sauf pour les fichiers
+# physiques existants (CSS, JS, images, etc.)
+
 <IfModule mod_rewrite.c>
+    # Active le module de réécriture d'URL
     RewriteEngine On
+    
+    # CORRECTION: Base path corrigé pour le dossier "stacgatelms" (minuscules)
+    # Ce chemin doit correspondre exactement au nom de votre dossier dans htdocs
     RewriteBase /stacgatelms/
+    
+    # Condition 1: Ne pas rediriger si le fichier existe physiquement
+    # (permet l'accès direct aux CSS, JS, images, etc.)
     RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Condition 2: Ne pas rediriger si le répertoire existe physiquement
+    # (permet l'accès aux sous-dossiers)
     RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Règle: Rediriger toutes les autres requêtes vers index.php
+    # [L] = Last rule (arrête le traitement des règles suivantes)
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# Configuration optionnelle pour améliorer les performances
+<IfModule mod_deflate.c>
+    # Compression gzip pour réduire la taille des fichiers
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Configuration de sécurité de base
+<IfModule mod_headers.c>
+    # Empêche le navigateur de deviner le type MIME
+    Header set X-Content-Type-Options nosniff
+    
+    # Protection contre le clickjacking
+    Header set X-Frame-Options DENY
+    
+    # Active la protection XSS du navigateur
+    Header set X-XSS-Protection "1; mode=block"
 </IfModule>

@@ -11,8 +11,8 @@
 
 declare(strict_types=1);
 
-use stacgate\Core\Router;
-use stacgate\Controllers\HomeController;
+use StacGate\Core\Router;
+use StacGate\Controllers\HomeController;
 
 require dirname(__DIR__) . '/vendor/autoload.php';   // Autoload PSR-4
 

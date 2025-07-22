@@ -301,8 +301,10 @@ class Router
         
         if ($routeInfo === null) {
             // Aucune route trouvée - erreur 404
+            // 404
             http_response_code(404);
-            echo "Page non trouvée (404)";
+            (new \StacGate\Core\View())
+                ->render('errors/404');
             return;
         }
         
@@ -311,8 +313,11 @@ class Router
             $this->execute($routeInfo);
         } catch (\Exception $e) {
             // Gère les erreurs d'exécution - erreur 500
+            // 500
             http_response_code(500);
-            echo "Erreur serveur : " . $e->getMessage();
+            (new \StacGate\Core\View())
+                ->render('errors/500');
+            return;
             
             // En environnement de développement, affiche la stack trace
             if (defined('DEBUG') && DEBUG === true) {

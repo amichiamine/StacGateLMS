@@ -9,14 +9,14 @@
  * - La sécurité de base et la validation des routes
  * 
  * Architecture : Mini-MVC modulaire
- * Namespace : StacGate\Core (PSR-4)
+ * Namespace : StacGate\Core (PSR-4) - CORRIGÉ POUR CORRESPONDRE À L'AUTOLOAD
  * 
  * @package StacGate\Core
- * @author Votre Équipe StacGate
+ * @author Amine AMICHI
  * @version 1.0.0
  */
 
-namespace stacgate\Core;
+namespace StacGate\Core; // CORRECTION: Namespace avec majuscule pour correspondre à composer.json
 
 /**
  * Classe Router - Gestionnaire principal du routage
@@ -265,7 +265,7 @@ class Router
         $methodName = $routeInfo['method'];
         $params = $routeInfo['params'];
         
-        // Construit le nom complet de la classe avec le namespace
+        // CORRECTION: Construit le nom complet de la classe avec le namespace corrigé
         $controllerClass = 'StacGate\\Controllers\\' . $controllerName;
         
         // Vérifie que la classe contrôleur existe

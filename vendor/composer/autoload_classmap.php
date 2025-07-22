@@ -7,6 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'stacgate\\Controllers\\HomeController' => $baseDir . '/Src/Controllers/HomeController.php',
-    'stacgate\\Core\\Router' => $baseDir . '/core/Router.php',
+    'StacGate\\Controllers\\HomeController' => $baseDir . '/Src/Controllers/HomeController.php',
+    'StacGate\\Core\\Router' => $baseDir . '/Core/Router.php',
 );

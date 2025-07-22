@@ -7,6 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'StacGate\\Tests\\' => array($baseDir . '/Tests'),
-    'StacGate\\Core\\' => array($baseDir . '/core'),
+    'StacGate\\Core\\' => array($baseDir . '/Core'),
     'StacGate\\' => array($baseDir . '/Src'),
 );

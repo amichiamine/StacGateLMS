@@ -22,7 +22,7 @@ class ComposerStaticInit664986c41af65d39f09ed083ed7e0cf5
         ),
         'StacGate\\Core\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/core',
+            0 => __DIR__ . '/../..' . '/Core',
         ),
         'StacGate\\' => 
         array (
@@ -32,8 +32,8 @@ class ComposerStaticInit664986c41af65d39f09ed083ed7e0cf5
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'stacgate\\Controllers\\HomeController' => __DIR__ . '/../..' . '/Src/Controllers/HomeController.php',
-        'stacgate\\Core\\Router' => __DIR__ . '/../..' . '/core/Router.php',
+        'StacGate\\Controllers\\HomeController' => __DIR__ . '/../..' . '/Src/Controllers/HomeController.php',
+        'StacGate\\Core\\Router' => __DIR__ . '/../..' . '/Core/Router.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

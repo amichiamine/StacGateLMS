@@ -122,7 +122,8 @@ git commit -m "Étape 2.3.4 : Création complète des tables d'authentification
 - Système de permissions granulaires par module
 - Utilisateur admin initial avec rôle système
 - Contraintes et index pour performance et sécurité
-- Tests de validation inclus"
+- Tests de validation inclus
+- ajouts script creation BD et Tables dans dossier migrations"
 
 # Push vers le dépôt
 git push origin main

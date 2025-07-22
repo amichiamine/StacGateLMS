@@ -37,8 +37,8 @@ class BaseController
      */
     protected function db(): \PDO
     {
-        throw new \LogicException(
-            'La connexion PDO sera disponible à l’étape 2.3.'
-        );
+       
+        return \StacGate\Core\BaseModel::db();
+       
     }
 }

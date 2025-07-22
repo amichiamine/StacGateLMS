@@ -16,7 +16,7 @@
  * @version 1.0.0
  */
 
-namespace StacGate\Core;
+namespace stacgate\Core;
 
 /**
  * Classe Router - Gestionnaire principal du routage

@@ -15,13 +15,13 @@
     },
     "autoload": {
         "psr-4": {
-            "StacGate\\Core\\": "core/",
-            "StacGate\\": "src/"
+            "stacgate\\Core\\": "core/",
+            "stacgate\\": "Src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "StacGate\\Tests\\": "tests/"
+            "stacgate\\Tests\\": "Tests/"
         }
     }
 }

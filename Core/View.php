@@ -3,7 +3,7 @@ namespace StacGate\Core;
 
 final class View
 {
-    private string $layout = 'layouts/main';
+    private string $layout = 'Layouts/main';
 
     public function setLayout(string $layout): self
     {
@@ -34,6 +34,6 @@ final class View
 
     private function path(string $relative): string
     {
-        return dirname(__DIR__) . '/templates/' . str_replace('/', DIRECTORY_SEPARATOR, $relative);
+        return dirname(__DIR__) . '/Templates/' . str_replace('/', DIRECTORY_SEPARATOR, $relative);
     }
 }

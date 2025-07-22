@@ -15,6 +15,7 @@
 
 namespace StacGate\Controllers; // CORRECTION: Namespace cohérent avec composer.json
 
+use StacGate\Core\BaseController;
 /**
  * Classe HomeController - Contrôleur principal de démonstration
  * 
@@ -22,7 +23,7 @@ namespace StacGate\Controllers; // CORRECTION: Namespace cohérent avec composer
  * - Route "/" : page d'accueil
  * - Route "/hello/{name}" : page de salutation personnalisée
  */
-class HomeController
+class HomeController extends BaseController
 {
     /**
      * Méthode appelée pour la route GET "/"

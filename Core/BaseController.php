@@ -1,32 +1,22 @@
 <?php
-/**
- * BaseController – contrôleur parent
- */
 namespace StacGate\Core;
 
-// 1) IMPORT de la classe View (en dehors de la classe)
 use StacGate\Core\View;
 
 class BaseController
 {
-    /** Chemin racine des templates */
-    protected string $viewsPath = __DIR__ . '/../templates/';   // « templates » tout en minuscules
-
     /**
-     * Rendu d’une vue avec layout
+     * Affiche une vue dans le layout voulu.
      */
-    protected function render(
-        string $view,
-        array  $data   = [],
-        string $layout = 'layouts/main'
-    ): void {
+    protected function render(string $view, array $data = [], string $layout = 'layouts/main'): void
+    {
         (new View())
             ->setLayout($layout)
             ->render($view, $data);
     }
 
     /**
-     * Accès PDO partagé (implémenté dans BaseModel)
+     * Connexion PDO partagée.
      */
     protected function db(): \PDO
     {

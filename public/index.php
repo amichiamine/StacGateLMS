@@ -1,43 +1,31 @@
 <?php
 /**
- * FRONT-CONTROLLER
- * Point d’entrée unique de l’application StacGateLMS.
- *
- * - Charge l’autoloader Composer.
- * - Définit le mode DEBUG (true en dev).
- * - Instancie le Router et enregistre les routes.
- * - Délègue la requête HTTP au Router.
+ * FRONT-CONTROLLER – point d’entrée unique
  */
 
 declare(strict_types=1);
 
 use StacGate\Core\Router;
-use StacGate\Controllers\HomeController;
 
-require dirname(__DIR__) . '/vendor/autoload.php';   // Autoload PSR-4
+/* Autoload + helper */
+require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__) . '/core/helpers.php';
 
-// Active les messages d’erreur en dev
+/* DEBUG */
 define('DEBUG', true);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-// Chemin de base (laisser chaîne vide si le projet est à la racine du vhost)
-$basePath = '/stacgatelms';
+/* BasePath dynamique pour le Router (ex.  /stacgatelms   ou   '') */
+$basePath = preg_replace('#/public/?$#', '', dirname($_SERVER['SCRIPT_NAME']));
+$router   = new Router($basePath);
 
-// --- Instanciation du Router ---
-$router = new Router($basePath);
-
-/**
- * -------------------------------------------------
- * ENREGISTREMENT DES ROUTES
- * -------------------------------------------------
- * Signature :
- *   $router->get($pattern, $controller, $method);
- *   $router->post(...);
- */
+/* -------------------------------------------------
+ * Enregistrement des routes
+ * ------------------------------------------------- */
 $router
-    ->get('/',               'HomeController', 'index')   // Page d’accueil
-    ->get('/hello/{name}',   'HomeController', 'hello');  // Route de test dynamique
+    ->get('/',              'HomeController', 'index')
+    ->get('/hello/{name}',  'HomeController', 'hello');
 
-// --- Lancement de la résolution ---
+/* Lancement */
 $router->handleRequest();

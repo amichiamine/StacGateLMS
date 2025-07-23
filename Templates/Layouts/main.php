@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title><?= $title ?? 'StacGateLMS' ?></title>
-    <link rel="stylesheet" href="/stacgatelms/public/css/app.css">
+    <link rel="stylesheet" href="<?= base_url('public/css/app.css') ?>">
 </head>
 <body>
 <header>… barre de navigation …</header>

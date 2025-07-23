@@ -312,12 +312,14 @@ class Router
             // Exécute la route trouvée
             $this->execute($routeInfo);
         } catch (\Exception $e) {
-            // Gère les erreurs d'exécution - erreur 500
-            // 500
             http_response_code(500);
-            (new \StacGate\Core\View())
-                ->render('errors/500');
+            (new \StacGate\Core\View())->render('errors/500');
+
+            if (defined('DEBUG') && DEBUG === true) {
+                echo '<pre>' . $e . '</pre>';
+            }
             return;
+
             
             // En environnement de développement, affiche la stack trace
             if (defined('DEBUG') && DEBUG === true) {

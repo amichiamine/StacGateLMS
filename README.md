@@ -127,3 +127,38 @@ git commit -m "Étape 2.3.4 : Création complète des tables d'authentification
 
 # Push vers le dépôt
 git push origin main
+
+
+
+git commit -m "Étape 2.4.3 : Implémentation helper base_url() - Portabilité totale
+
+🚀 NOUVELLES FONCTIONNALITÉS :
+• Helper global base_url() avec auto-détection protocole/domaine/chemin
+• Support dynamique multi-environnements (localhost/production/staging)
+• BasePath calculé automatiquement dans le Router
+• Chargement global du helper dans le front-controller
+
+🔧 AMÉLIORATIONS TECHNIQUES :
+• Suppression de tous les chemins codés en dur (/stacgatelms/)
+• Auto-détection HTTPS/HTTP selon configuration serveur
+• Calcul intelligent du chemin racine depuis SCRIPT_NAME
+• Gestion robuste des sous-dossiers et domaines
+
+📝 FICHIERS MODIFIÉS :
+• core/helpers.php (NOUVEAU) - Helper central de portabilité
+• public/index.php - BasePath dynamique + chargement helper
+• templates/layouts/main.php - Liens CSS avec base_url()
+• templates/errors/*.php - Liens de retour dynamiques
+• Src/Controllers/HomeController.php - Navigation portable
+• Core/Router.php - Amélioration gestion erreurs debug
+
+✅ BÉNÉFICES OBTENUS :
+• Application 100% portable entre environnements
+• Déploiement sans modification de code
+• Compatibilité localhost/domaine/sous-domaine garantie
+• Maintenance simplifiée pour les changements d'URL
+• Architecture respectant les standards MVC
+
+Tests : Fonctionnement validé en local et simulation changement dossier
+Architecture : Mini-MVC modulaire maintenue
+Sécurité : Échappement HTML conservé dans tous les templates"
